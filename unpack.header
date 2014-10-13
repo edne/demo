@@ -1,1 +1,1 @@
-dd bs=1 skip=61<$0|gunzip>/tmp/C;chmod +x /tmp/C;/tmp/C;exit
+dd bs=1 skip=60<$0|xzcat>/tmp/C;chmod +x /tmp/C;/tmp/C;exit

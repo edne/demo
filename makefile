@@ -10,7 +10,7 @@ all:
 	ld -dynamic-linker $(ldlinux) $(filename).o $(libsdl) $(libgl) $(libc) -o $(filename)
 	strip -s -R .comment -R .gnu.version $(filename)
 	cp unpack.header $(packed)
-	gzip -cn9 $(filename) >> $(packed)
+	lzma -c -9 $(filename) >> $(packed)
 	cp $(packed) $(filename)
 
 clean:
