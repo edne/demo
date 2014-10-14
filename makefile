@@ -13,8 +13,6 @@ outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done
 all:
 	make clean compress output=$(outputs_gen)
 
-.PHONY: elfkickers
-
 elfkickers:
 	$(MAKE) -C $(ELFKICKERSDIR)
 
@@ -34,7 +32,8 @@ build/%: %.o
 %.o: src/%.c
 	gcc -Os -fomit-frame-pointer -c $<
 
-$(sstrip): elfkickers	
+$(sstrip):
+	$(MAKE) -C $(ELFKICKERSDIR)	
 
 clean:
 	rm -f build/*
