@@ -16,6 +16,7 @@ compress: $(output)
 	cp unpack.header packed
 	lzma -c -9 $< >> packed
 	mv packed $<
+	chmod +x $<
 
 build/%: %.o
 	mkdir -p build
