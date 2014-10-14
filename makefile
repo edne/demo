@@ -3,6 +3,8 @@ sstrip=elfkickers/bin/sstrip
 
 ELFKICKERSDIR = elfkickers
 
+CCFLAGS = -Os -fomit-frame-pointer
+
 ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
 libgl=/usr/lib/x86_64-linux-gnu/libGL.so
@@ -30,7 +32,7 @@ build/%: %.o
 	rm $<
 
 %.o: src/%.c
-	gcc -Os -fomit-frame-pointer -c $<
+	gcc $(CCFLAGS) -c $<
 
 $(sstrip):
 	$(MAKE) -C $(ELFKICKERSDIR)	
