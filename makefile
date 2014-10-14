@@ -18,6 +18,7 @@ compress: $(output)
 	mv packed $<
 
 build/%: %.o
+	mkdir -p build
 	ld -dynamic-linker $(ldlinux) $< $(libs) -o $@
 	rm $<
 
