@@ -1,4 +1,7 @@
 packed=/tmp/$(filename)
+sstrip=elfkickers/bin/sstrip
+
+ELFKICKERSDIR = elfkickers
 
 ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
@@ -10,9 +13,14 @@ outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done
 all:
 	make clean compress output=$(outputs_gen)
 
-compress: $(output)
+.PHONY: elfkickers
+
+elfkickers:
+	$(MAKE) -C $(ELFKICKERSDIR)
+
+compress: $(output) $(sstrip) 
 	strip -s -R .comment -R .gnu.version $<
-	#sstrip $<
+	$(sstrip) $<
 	cp unpack.header packed
 	lzma -c -9 $< >> packed
 	mv packed $<
@@ -26,5 +34,10 @@ build/%: %.o
 %.o: src/%.c
 	gcc -Os -fomit-frame-pointer -c $<
 
+$(sstrip): elfkickers	
+
 clean:
 	rm -f build/*
+
+clean-all: clean
+	$(MAKE) -C $(ELFKICKERSDIR) clean

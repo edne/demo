@@ -1,3 +1,16 @@
 .*
 *.o
 build/
+elfkickers/bin/
+elfkickers/doc/
+elfkickers/ebfc/ebfc
+elfkickers/ebfc/libelfparts.a
+elfkickers/elfls/elfls
+elfkickers/elfrw/libelfrw.a
+elfkickers/elftoc/elfnames.c
+elfkickers/elftoc/elftoc
+elfkickers/elftoc/mknames
+elfkickers/infect/infect
+elfkickers/objres/objres
+elfkickers/rebind/rebind
+elfkickers/sstrip/sstrip
