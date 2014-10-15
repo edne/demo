@@ -1,15 +1,16 @@
 #include "GL/gl.h"
 #include "SDL/SDL.h"
-
-#include "sys/soundcard.h"
 #include "fcntl.h"
-#include "sys/ioctl.h"
-#include "unistd.h"
+static uint8_t audio_buf[4096];
 
-void _start()
-{
+void fillaudio(void *udata, Uint8 *stream, int len){
+  memcpy(stream, (uint8_t*)audio_buf, len);
+}
+
+void main()
+{ 
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) goto cleanclose;
   SDL_Event event;
-
   SDL_SetVideoMode(640,480,0,SDL_OPENGL|SDL_FULLSCREEN);
   SDL_ShowCursor(SDL_DISABLE);
   glMatrixMode(GL_PROJECTION);
@@ -26,26 +27,28 @@ void _start()
   glVertex3i(-1,1,-10);
   glEnd();
   SDL_GL_SwapBuffers();
-  
-  int audio_fd,i;
-  short audio_buffer[4096];
-
-  audio_fd = open("/dev/dsp", O_WRONLY, 0);
-  i=AFMT_S16_LE;ioctl(audio_fd,SNDCTL_DSP_SETFMT,&i);
-  i=1;ioctl(audio_fd,SNDCTL_DSP_CHANNELS,&i);
-  i=11024;ioctl(audio_fd,SNDCTL_DSP_SPEED,&i);
-
-  for (i=0;i<4096;i++)
-  {
-    audio_buffer[i]=i<<8;
+   
+  // SDL audio part
+  unsigned short i=0;
+  for (; i < 4096; i++){
+    audio_buf[i] = i >> 2;
   }
-
+  SDL_AudioSpec as;
+  as.freq = 22050;
+  as.format = AUDIO_S16;
+  as.channels = 1;
+  as.samples = 4096;
+  as.callback = fillaudio;
+  if(SDL_OpenAudio(&as, NULL)<0) goto cleanclose;
+  SDL_PauseAudio(0);
   do
   {
-    ioctl(audio_fd,SNDCTL_DSP_SYNC);
-    write(audio_fd,audio_buffer,8192);
     SDL_PollEvent(&event);
+    SDL_Delay(100);
   } while (event.type!=SDL_KEYDOWN);
+  
+cleanclose:
+  SDL_CloseAudio();
   SDL_Quit();
 
   asm ( \
