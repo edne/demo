@@ -35,6 +35,7 @@ $(stub).o:
 	gcc $(stub).S -c $<
 
 %.o: src/%.c
+	./s2h.py $<
 	gcc $(CCFLAGS) -c $<
 
 $(sstrip):
@@ -42,6 +43,7 @@ $(sstrip):
 
 clean:
 	rm -f build/*
+	rm -f src/*_shaders.h
 	rm -f $(stub).o
 
 clean-all: clean
