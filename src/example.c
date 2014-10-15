@@ -50,10 +50,6 @@ void main()
 cleanclose:
   SDL_CloseAudio();
   SDL_Quit();
-
-  asm ( \
-  "movl $1,%eax\n" \
-  "xor %ebx,%ebx\n" \
-  "int $128\n" \
-  );
 }
+
+

@@ -3,13 +3,13 @@ sstrip=elfkickers/bin/sstrip
 
 ELFKICKERSDIR = elfkickers
 
-CCFLAGS = -Os -fomit-frame-pointer
+CCFLAGS = -Os -fomit-frame-pointer -nostdlib -nostartfiles  
 
 ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
 libgl=/usr/lib/x86_64-linux-gnu/libGL.so
-libc=/lib/x86_64-linux-gnu/libc.so.6
-libs=$(libsdl) $(libgl) $(libc)
+stub=stubstart
+libs=$(libsdl) $(libgl)
 outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done)`
 
 all:
@@ -26,10 +26,13 @@ compress: $(output) $(sstrip)
 	mv packed $<
 	chmod +x $<
 
-build/%: %.o
+build/%: %.o $(stub).o
 	mkdir -p build
-	ld -dynamic-linker $(ldlinux) $< $(libs) -o $@
+	ld -dynamic-linker $(ldlinux) $(stub).o $< $(libs) -o $@
 	rm $<
+
+$(stub).o:
+	gcc $(stub).S -c $<
 
 %.o: src/%.c
 	gcc $(CCFLAGS) -c $<
@@ -39,6 +42,7 @@ $(sstrip):
 
 clean:
 	rm -f build/*
+	rm -f $(stub).o
 
 clean-all: clean
 	$(MAKE) -C $(ELFKICKERSDIR) clean
