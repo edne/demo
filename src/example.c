@@ -4,12 +4,33 @@
 #include "example_shaders.h"
 
 
+static uint8_t audio_buf[4096];
+
+void fillaudio(void *udata, Uint8 *stream, int len)
+{
+    memcpy(stream, (uint8_t*)audio_buf, len);
+}
+
+
 GLuint init(void)
 {
     GLuint prog;
 
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
  
+    unsigned short int i;
+    for(i=0; i < 4096; i++)
+        audio_buf[i] = i >> 2;
+
+    SDL_AudioSpec as;
+    as.freq = 22050;
+    as.format = AUDIO_S16;
+    as.channels = 1;
+    as.samples = 4096;
+    as.callback = fillaudio;
+    SDL_OpenAudio(&as, NULL);
+    SDL_PauseAudio(0);
+
     //SDL_SetVideoMode(640,480,0,SDL_OPENGL|SDL_FULLSCREEN);
     SDL_SetVideoMode(640,480,0,SDL_OPENGL);
     SDL_ShowCursor(SDL_DISABLE);
@@ -75,6 +96,7 @@ int main(void)
         SDL_PollEvent(&event);
     } while (event.type!=SDL_KEYDOWN);
 
+    SDL_CloseAudio();
     SDL_Quit();
     return 0;
 }
