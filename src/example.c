@@ -43,11 +43,11 @@ void display(GLuint prog)
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
-    //glUniform2f(glGetUniformLocation(prog, "resolution"), 640.0, 480.0);
-    glUniform1f(glGetUniformLocation(prog, "var"), 1.0);
+    glUniform2f(glGetUniformLocation(prog, "resolution"), 640, 480);
+    glUniform1f(glGetUniformLocation(prog, "time"), (float)SDL_GetTicks()/1000);
 
     glBegin(GL_QUADS);
-    #define L 1
+    #define L 100
     float i,j;
     for(i=-L; i<L; i++)
         for(j=-L; j<L; j++)

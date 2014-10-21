@@ -1,11 +1,8 @@
 uniform vec2 resolution;
-uniform float var;
+uniform float time;
 
 void main(void)
 {
-    if(var != 0.0)
-        /*gl_FragColor = gl_FragCoord / 1000.0;*/
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-    else
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    vec2 p = gl_FragCoord.xy / resolution;
+    gl_FragColor = vec4(p.x, 0.5+0.5*sin(time*3.0 + p.y), 0.5+0.5*sin(time), 1.0);
 }
