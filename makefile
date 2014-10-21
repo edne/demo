@@ -3,7 +3,8 @@ sstrip=elfkickers/bin/sstrip
 
 ELFKICKERSDIR = elfkickers
 
-CCFLAGS = -Os -fomit-frame-pointer -nostdlib -nostartfiles  
+WARNINGS = -Wall -Wno-implicit-function-declaration
+CCFLAGS = -Os -fomit-frame-pointer -nostdlib -nostartfiles $(WARNINGS)
 
 ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
@@ -14,6 +15,7 @@ outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done
 
 all:
 	make clean compress output=$(outputs_gen)
+	ls -la build/*
 
 elfkickers:
 	$(MAKE) -C $(ELFKICKERSDIR)
