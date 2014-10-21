@@ -1,8 +1,6 @@
-//#include <GL/glew.h>
-//#include <GL/gl.h>
-//#include <SDL/SDL.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include "SDL/SDL.h"
+#include <GL/glew.h>
+
 #include "example_shaders.h"
 
 
@@ -10,11 +8,16 @@ GLuint init(void)
 {
     GLuint prog;
 
+    SDL_Init(SDL_INIT_VIDEO);
+ 
     //SDL_SetVideoMode(640,480,0,SDL_OPENGL|SDL_FULLSCREEN);
     SDL_SetVideoMode(640,480,0,SDL_OPENGL);
     SDL_ShowCursor(SDL_DISABLE);
 
 	glViewport(0, 0, 640, 480);
+
+	glewInit();
+
     prog = glCreateProgram();
 
 	GLuint sdr;

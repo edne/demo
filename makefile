@@ -9,8 +9,9 @@ CCFLAGS = -Os -fomit-frame-pointer -nostdlib -nostartfiles $(WARNINGS)
 ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
 libgl=/usr/lib/x86_64-linux-gnu/libGL.so
+libglew=/usr/lib/x86_64-linux-gnu/libGLEW.so
 stub=stubstart
-libs=$(libsdl) $(libgl)
+libs=$(libsdl) $(libgl) $(libglew)
 outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done)`
 
 all:
@@ -50,3 +51,8 @@ clean:
 
 clean-all: clean
 	$(MAKE) -C $(ELFKICKERSDIR) clean
+
+normal:
+	./s2h.py src/$(NAME).c
+	gcc $(WARNINGS) `sdl-config --cflags` src/$(NAME).c -o build/$(NAME) `sdl-config --libs` -lGL -lGLU -lGLEW
+	build/$(NAME)
