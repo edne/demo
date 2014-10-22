@@ -5,19 +5,17 @@
 
 
 static uint8_t audio_buf[4096];
+GLuint video_prog;
 
-void fillaudio(void *udata, Uint8 *stream, int len)
+
+void audio_cb(void *udata, Uint8 *stream, int len)
 {
     memcpy(stream, (uint8_t*)audio_buf, len);
 }
 
 
-GLuint init(void)
+void audio_init(void)
 {
-    GLuint prog;
-
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
- 
     unsigned short int i;
     for(i=0; i < 4096; i++)
         audio_buf[i] = i >> 2;
@@ -27,10 +25,14 @@ GLuint init(void)
     as.format = AUDIO_S16;
     as.channels = 1;
     as.samples = 4096;
-    as.callback = fillaudio;
+    as.callback = audio_cb;
     SDL_OpenAudio(&as, NULL);
     SDL_PauseAudio(0);
+}
 
+
+void video_init(void)
+{
     //SDL_SetVideoMode(640,480,0,SDL_OPENGL|SDL_FULLSCREEN);
     SDL_SetVideoMode(640,480,0,SDL_OPENGL);
     SDL_ShowCursor(SDL_DISABLE);
@@ -39,33 +41,41 @@ GLuint init(void)
 
 	glewInit();
 
-    prog = glCreateProgram();
+    video_prog = glCreateProgram();
 
 	GLuint sdr;
 
 	sdr = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(sdr, 1, &VERT_SOURCE, NULL);
 	glCompileShader(sdr);
-	glAttachShader(prog, sdr);
+	glAttachShader(video_prog, sdr);
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(sdr, 1, &FRAG_SOURCE, NULL);
 	glCompileShader(sdr);
-	glAttachShader(prog, sdr);
+	glAttachShader(video_prog, sdr);
 
-	glLinkProgram(prog);
-	glUseProgram(prog);
-
-    return prog;
+	glLinkProgram(video_prog);
+	glUseProgram(video_prog);
 }
 
-void display(GLuint prog)
+
+void init(void)
+{
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+
+    audio_init();
+    video_init();
+}
+
+
+void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
-    glUniform2f(glGetUniformLocation(prog, "resolution"), 640, 480);
-    glUniform1f(glGetUniformLocation(prog, "time"), (float)SDL_GetTicks()/1000);
+    glUniform2f(glGetUniformLocation(video_prog, "resolution"), 640, 480);
+    glUniform1f(glGetUniformLocation(video_prog, "time"), (float)SDL_GetTicks()/1000);
 
     glBegin(GL_QUADS);
     #define L 100
@@ -83,15 +93,15 @@ void display(GLuint prog)
     SDL_GL_SwapBuffers();
 }
 
+
 int main(void)
 {
-    GLuint prog;
-    prog = init();
+    init();
     
     SDL_Event event;
     do
     {
-        display(prog);
+        display();
 
         SDL_PollEvent(&event);
     } while (event.type!=SDL_KEYDOWN);
