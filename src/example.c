@@ -12,50 +12,54 @@ GLuint video_prog;
 //float notes[] = {440,587.33,739.99,880};
 const float notes[] = {110,146.83,185,220};
 
-float filter(float sample){
-	static float filterbank[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	char i;
-	static float acc = 0;
-	acc = acc + sample - filterbank[FILTERLEN-1];
-	for (i=FILTERLEN-1; i>0; i--){
-		filterbank[i] = filterbank[i-1];
-	}
-	filterbank[0] = sample;
-	return acc/FILTERLEN;
+float filter(float sample)
+{
+    static float filterbank[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    char i;
+    static float acc = 0;
+    acc = acc + sample - filterbank[FILTERLEN-1];
+    for (i=FILTERLEN-1; i>0; i--)
+    {
+        filterbank[i] = filterbank[i-1];
+    }
+    filterbank[0] = sample;
+    return acc/FILTERLEN;
 }
 
 void audio_cb(void *udata, Uint8 *stream, int len)
 {
-  unsigned short int i;
-	static char filterlen = FILTERLEN;
-	static unsigned char note=0;
-//  static unsigned short int p=0;
-	static float p = -1;
-  static unsigned short int n=0;
-	float sawIncr= (2 * notes[note]) / SAMPLERATE;
-	static short int a=MAXAMP;
-  for(i=0; i < len/2; i++){
-	  a = (a+MAXAMP-2)%MAXAMP;
-  	if (a==0){
-			note=(note+1)%4;
-			sawIncr= (2 * notes[note]) / SAMPLERATE;
-		} 
-		if (a % (MAXAMP/10) == 0){
-			filterlen--;
-			if (filterlen <= 0) filterlen = FILTERLEN;
-		} 
-    *((unsigned short*) stream+i) = filter(p) * a;
-		p += sawIncr;
-		if (p >= 1) p = -1;
-    //*((unsigned short*)stream+i) = sin((TWOPI/SAMPLERATE)*notes[note]*p)*a;
-		//p++;
-	}
+    unsigned short int i;
+    static char filterlen = FILTERLEN;
+    static unsigned char note=0;
+    //static unsigned short int p=0;
+    static float p = -1;
+    static unsigned short int n=0;
+    float sawIncr= (2 * notes[note]) / SAMPLERATE;
+    static short int a=MAXAMP;
+    for(i=0; i < len/2; i++)
+    {
+        a = (a+MAXAMP-2)%MAXAMP;
+        if (a==0)
+        {
+            note=(note+1)%4;
+            sawIncr= (2 * notes[note]) / SAMPLERATE;
+        }
+        if (a % (MAXAMP/10) == 0)
+        {
+            filterlen--;
+            if (filterlen <= 0) filterlen = FILTERLEN;
+        }
+        *((unsigned short*) stream+i) = filter(p) * a;
+        p += sawIncr;
+        if (p >= 1) p = -1;
+        //*((unsigned short*)stream+i) = sin((TWOPI/SAMPLERATE)*notes[note]*p)*a;
+        //p++;
+    }
 }
 
 
 void audio_init(void)
 {
-
     SDL_AudioSpec as;
     as.freq = FREQ;
     as.format = AUDIO_S16;
@@ -73,26 +77,26 @@ void video_init(void)
     SDL_SetVideoMode(640,480,0,SDL_OPENGL);
     SDL_ShowCursor(SDL_DISABLE);
 
-	glViewport(0, 0, 640, 480);
+    glViewport(0, 0, 640, 480);
 
-	glewInit();
+    glewInit();
 
     video_prog = glCreateProgram();
 
-	GLuint sdr;
+    GLuint sdr;
 
-	sdr = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(sdr, 1, &VERT_SOURCE, NULL);
-	glCompileShader(sdr);
-	glAttachShader(video_prog, sdr);
+    sdr = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(sdr, 1, &VERT_SOURCE, NULL);
+    glCompileShader(sdr);
+    glAttachShader(video_prog, sdr);
 
-	sdr = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(sdr, 1, &FRAG_SOURCE, NULL);
-	glCompileShader(sdr);
-	glAttachShader(video_prog, sdr);
+    sdr = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(sdr, 1, &FRAG_SOURCE, NULL);
+    glCompileShader(sdr);
+    glAttachShader(video_prog, sdr);
 
-	glLinkProgram(video_prog);
-	glUseProgram(video_prog);
+    glLinkProgram(video_prog);
+    glUseProgram(video_prog);
 }
 
 
