@@ -10,8 +10,9 @@ ldlinux=/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
 libsdl=/usr/lib/x86_64-linux-gnu/libSDL.so
 libgl=/usr/lib/x86_64-linux-gnu/libGL.so
 libglew=/usr/lib/x86_64-linux-gnu/libGLEW.so
+libm=/usr/lib/x86_64-linux-gnu/libm.so
 stub=stubstart
-libs=$(libsdl) $(libgl) $(libglew)
+libs=$(libsdl) $(libgl) $(libglew) $(libm)
 outputs_gen=`for f in src/*.c; do (echo -n "build/$$(basename $${f%.c}) "); done)`
 
 all:
