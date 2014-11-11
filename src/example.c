@@ -2,58 +2,51 @@
 #include <GL/glew.h>
 #include "example_shaders.h"
 
-#define TWOPI 6.283185307179586476925287
-#define FREQ 22050
-#define SAMPLERATE FREQ
-#define MAXAMP 24576
-#define FILTERLEN 10
-GLuint video_prog;
 
-//float notes[] = {440,587.33,739.99,880};
-const float notes[] = {110,146.83,185,220};
+#define SAMPLERATE  44100
+#define N_SAMPLES   4096
 
-float filter(float sample)
-{
-    static float filterbank[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    char i;
-    static float acc = 0;
-    acc = acc + sample - filterbank[FILTERLEN-1];
-    for (i=FILTERLEN-1; i>0; i--)
-    {
-        filterbank[i] = filterbank[i-1];
-    }
-    filterbank[0] = sample;
-    return acc/FILTERLEN;
-}
+#define SAMPLE  Uint16
+#define RANGE   (0xffff)
+
+// Utilities
+#define OUT(i)      ( *((SAMPLE*) stream+i) )
+#define MULT(a,b)   ( (a) * (b) / RANGE )
+
+// Oscillators
+#define SAW(t, f)       ( (t * f * RANGE / SAMPLERATE) % RANGE )
+#define SQUARE(t, f)    ( RANGE * (SAW(t,f) > RANGE/2) )
+#define PWM(t, f, w)    ( RANGE * (SAW(t,f) > w) )  // w in [0, RANGE)
+
+// Filters
+#define LP2(s1, s2)         ( (s1 + s2)/2 )
+#define LP3(s1, s2, s3)     ( (s1 + s2 + s3)/3 )
+
+// Envelopes
+#define EXP(t, p)   (RANGE >> (t >> p))  // RANGE * pow(2, -t*p)
+//#define LIN(t, 
+//#define ASR(t,ts a,s,r)
+//#define ADSR(t,ts a,d,s,r)
+
+// Instruments
+#define KICK(t)     MULT(EXP(t,11), PWM(t, 100, RANGE/2 - EXP(t,10)/4))
+
 
 void audio_cb(void *udata, Uint8 *stream, int len)
 {
-    unsigned short int i;
-    static char filterlen = FILTERLEN;
-    static unsigned char note=0;
-    //static unsigned short int p=0;
-    static float p = -1;
-    static unsigned short int n=0;
-    float sawIncr= (2 * notes[note]) / SAMPLERATE;
-    static short int a=MAXAMP;
-    for(i=0; i < len/2; i++)
+    static unsigned int t = 0;
+    static int tk = 0;
+
+    int i;
+    for(i=0; i<N_SAMPLES; i++)
     {
-        a = (a+MAXAMP-2)%MAXAMP;
-        if (a==0)
-        {
-            note=(note+1)%4;
-            sawIncr= (2 * notes[note]) / SAMPLERATE;
-        }
-        if (a % (MAXAMP/10) == 0)
-        {
-            filterlen--;
-            if (filterlen <= 0) filterlen = FILTERLEN;
-        }
-        *((unsigned short*) stream+i) = filter(p) * a;
-        p += sawIncr;
-        if (p >= 1) p = -1;
-        //*((unsigned short*)stream+i) = sin((TWOPI/SAMPLERATE)*notes[note]*p)*a;
-        //p++;
+        if( !(t%(1<<15)) ) tk=0;
+        OUT(i) |= KICK(tk);
+        tk++;
+
+        //OUT(i) |= PWM(t, 440, (t>>4) % RANGE) & SAW(t,442) / 8;
+
+        t++;
     }
 }
 
@@ -61,15 +54,17 @@ void audio_cb(void *udata, Uint8 *stream, int len)
 void audio_init(void)
 {
     SDL_AudioSpec as;
-    as.freq = FREQ;
-    as.format = AUDIO_S16;
+    as.freq = SAMPLERATE;
+    as.format = AUDIO_U16;
     as.channels = 1;
-    as.samples = 4096;
+    as.samples = N_SAMPLES*2;
     as.callback = audio_cb;
     SDL_OpenAudio(&as, NULL);
     SDL_PauseAudio(0);
 }
 
+
+GLuint video_prog;
 
 void video_init(void)
 {
