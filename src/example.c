@@ -24,9 +24,10 @@
 
 // Envelopes
 #define EXP(t, p)   (RANGE >> (t >> p))  // RANGE * pow(2, -t*p)
+#define PULSE(t,ts) (RANGE * (t>=0 && t<ts)
 //#define LIN(t, 
-//#define ASR(t,ts a,s,r)
-//#define ADSR(t,ts a,d,s,r)
+//#define ASR(t,ts, a,s,r)
+//#define ADSR(t,ts, a,d,s,r)
 
 // Instruments
 #define KICK(t)     MULT(EXP(t,11), PWM(t, 100, RANGE/2 - EXP(t,10)/4))
@@ -44,7 +45,8 @@ void audio_cb(void *udata, Uint8 *stream, int len)
         OUT(i) |= KICK(tk);
         tk++;
 
-        //OUT(i) |= PWM(t, 440, (t>>4) % RANGE) & SAW(t,442) / 8;
+        OUT(i) |= PWM(t, 440, (t>>4) % RANGE) & SAW(t,442) / 8;
+        //OUT(i) = SAW(t, MULT(220,SAW(t,1)));
 
         t++;
     }
