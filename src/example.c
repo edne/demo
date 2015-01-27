@@ -110,24 +110,15 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    //glRotatef(60, 1, 0, 0);
 
     glUniform2f(glGetUniformLocation(video_prog, "resolution"), 640, 480);
     glUniform1f(glGetUniformLocation(video_prog, "time"), (float)SDL_GetTicks()/1000);
 
     glBegin(GL_QUADS);
-    #define L 10
-    float i,j;
-    for(i=-L; i<L; i++)
-        for(j=-L; j<L; j++)
-        {
-            //glColor3f(0,0,1);
-            glVertex2f(i*1.0/L, j*1.0/L);
-            //glColor3f(0,1,0);
-            glVertex2f((i+1)*1.0/L, j*1.0/L);
-            glVertex2f((i+1)*1.0/L, (j+1)*1.0/L);
-            glVertex2f(i*1.0/L, (j+1)*1.0/L);
-        }
+    glVertex2f(-1, -1);
+    glVertex2f(1, -1);
+    glVertex2f(1, 1);
+    glVertex2f(-1, 1);
     glEnd();
 
     SDL_GL_SwapBuffers();
