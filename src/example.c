@@ -121,9 +121,9 @@ void display()
     for(i=-L; i<L; i++)
         for(j=-L; j<L; j++)
         {
-            glColor3f(0,0,1);
+            //glColor3f(0,0,1);
             glVertex2f(i*1.0/L, j*1.0/L);
-            glColor3f(0,1,0);
+            //glColor3f(0,1,0);
             glVertex2f((i+1)*1.0/L, j*1.0/L);
             glVertex2f((i+1)*1.0/L, (j+1)*1.0/L);
             glVertex2f(i*1.0/L, (j+1)*1.0/L);
